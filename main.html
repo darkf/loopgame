@@ -58,8 +58,30 @@ function rotate(tile) {
 	return t;
 }
 
+// Is the graph described by the board connected? (i.e. are all edges connected?)
+function isConnected(board) {
+	function set(x, y, dir) {
+		return (board[y] !== undefined && board[y][x] !== undefined) && (board[y][x] & dir);
+	}
+
+	for(let y = 0; y < board.length; y++) {
+		for(let x = 0; x < board[y].length; x++) {
+			const tile = board[y][x];
+
+			if((tile & TILE_UP) && !set(x, y-1, TILE_DOWN)) return false;
+			if((tile & TILE_DOWN) && !set(x, y+1, TILE_UP)) return false;
+			if((tile & TILE_LEFT) && !set(x-1, y, TILE_RIGHT)) return false;
+			if((tile & TILE_RIGHT) && !set(x+1, y, TILE_LEFT)) return false;
+		}
+	}
+
+	return true;
+}
+
 window.onload = function() {
 	const game = document.getElementById("game");
+	console.log("isConnected(board):", isConnected(board));
+	console.log("isConnected(solved):", isConnected(solved));
 
 	for(let y = 0; y < board.length; y++) {
 		const rowEl = document.createElement("div");
