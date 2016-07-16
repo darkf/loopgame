@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Loop</title>
+<style>
+	body { font-family: monospace; -webkit-user-select: none; cursor: default; }
+	.tile { width: 1em; height: 1em; text-align: center; display: inline-block; }
+</style>
+<script>
+"use strict";
+
+const TILE_UP = 1;
+const TILE_RIGHT = 2;
+const TILE_DOWN = 4;
+const TILE_LEFT = 8;
+
+const board = [[9,  12, 12, 6]
+              ,[10, 13, 13, 5]
+              ,[3,  3,  9,  3]];
+
+const solved = [[6, 12, 6, 12]
+               ,[5, 7,  13, 5]
+               ,[3, 9,  3, 9]];
+
+function tileChar(tile) {
+	switch(tile) {
+		case TILE_UP | TILE_DOWN: return '┃';
+		case TILE_LEFT | TILE_RIGHT: return '━';
+		case TILE_DOWN | TILE_RIGHT: return '┏';
+		case TILE_DOWN | TILE_LEFT: return '┓';
+		case TILE_UP | TILE_LEFT: return '┛';
+		case TILE_UP | TILE_RIGHT: return '┗';
+		case TILE_UP | TILE_DOWN | TILE_RIGHT: return '┣';
+		case TILE_LEFT | TILE_RIGHT | TILE_DOWN: return '┳';
+		case TILE_LEFT | TILE_UP | TILE_DOWN: return '┫';
+		case TILE_UP | TILE_LEFT | TILE_RIGHT: return '┻';
+		case TILE_UP | TILE_DOWN | TILE_LEFT | TILE_RIGHT: return '╋';
+		case TILE_UP: return '╹';
+		case TILE_RIGHT: return '╺';
+		case TILE_LEFT: return '╸';
+		case TILE_DOWN: return '╻';
+		default: throw new Error("");
+	}
+}
+
+function rotate(tile) {
+	let t = 0;
+
+	if(tile & TILE_UP) t |= TILE_RIGHT;
+	if(tile & TILE_DOWN) t |= TILE_LEFT;
+
+	if(tile & TILE_LEFT) t |= TILE_UP;
+	if(tile & TILE_RIGHT) t |= TILE_DOWN;
+
+	console.log("tile: %d, t: %d", tile, t);
+
+	return t;
+}
+
+window.onload = function() {
+	const game = document.getElementById("game");
+
+	for(let y = 0; y < board.length; y++) {
+		const rowEl = document.createElement("div");
+		for(let x = 0; x < board[y].length; x++) {
+			const cell = document.createElement("div");
+			cell.className = "tile";
+			cell.innerText = tileChar(board[y][x]);
+			cell.onclick = function() {
+				const tile = rotate(board[y][x]);
+				board[y][x] = tile;
+				this.innerText = tileChar(tile);
+			};
+			rowEl.appendChild(cell);
+		}
+		game.appendChild(rowEl);
+	}
+
+};
+</script>
+</head>
+<body>
+	<div id="game">
+	</div>
+</body>
+</html>
