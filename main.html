@@ -93,6 +93,9 @@ window.onload = function() {
 				const tile = rotate(board[y][x]);
 				board[y][x] = tile;
 				this.innerText = tileChar(tile);
+
+				if(isConnected(board))
+					alert("Win!");
 			};
 			rowEl.appendChild(cell);
 		}
