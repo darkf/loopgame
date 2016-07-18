@@ -143,6 +143,7 @@ function makeRandomBoard(rnd, n, m) {
 		if((tile & TILE_UP) && !(include & TILE_UP)) go(x, y-1, TILE_DOWN);
 	}
 
+	// Start in the top left, with no particular tile constraints
 	go(0, 0, 0);
 
 	return board;
@@ -157,10 +158,6 @@ function shuffleBoard(rnd, board) {
 		}
 	}
 }
-
-const rnd = rng(42);
-const board = makeRandomBoard(rnd, 4, 4);
-shuffleBoard(rnd, board);
 
 function showBoard(board) {
 	return board.map(row => row.map(tileChar).join('')).join('\n');
@@ -188,6 +185,10 @@ function solve(x, y) {
 
 window.onload = function() {
 	const game = document.getElementById("game");
+
+	const rnd = rng(42);
+	const board = makeRandomBoard(rnd, 4, 4);
+	shuffleBoard(rnd, board);
 
 	for(let y = 0; y < board.length; y++) {
 		const rowEl = document.createElement("div");
