@@ -183,13 +183,14 @@ function solve(x, y) {
 	return false;
 }
 
-window.onload = function() {
+function newGame(seed) {
 	const game = document.getElementById("game");
 
-	const rnd = rng(42);
+	const rnd = rng(seed || 42);
 	const board = makeRandomBoard(rnd, 4, 4);
 	shuffleBoard(rnd, board);
 
+	game.innerHTML = "";
 	for(let y = 0; y < board.length; y++) {
 		const rowEl = document.createElement("div");
 		for(let x = 0; x < board[y].length; x++) {
@@ -201,14 +202,19 @@ window.onload = function() {
 				board[y][x] = tile;
 				this.innerText = tileChar(tile);
 
-				if(isConnected(board))
-					alert("Win!");
+				if(isConnected(board)) {
+					alert("You won!");
+					newGame(getRandomInt(rnd, 1, 10000));
+				}
 			};
 			rowEl.appendChild(cell);
 		}
 		game.appendChild(rowEl);
 	}
+}
 
+window.onload = function() {
+	newGame();
 };
 </script>
 </head>
