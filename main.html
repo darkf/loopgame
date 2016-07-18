@@ -104,20 +104,7 @@ function makeRandomBoard(rnd, n, m) {
 		return (board[y] !== undefined && board[y][x] !== undefined) && (board[y][x] & dir);
 	}
 
-	// add starting tile in top-left corner (optional)
-	// board[0][0] = TILE_RIGHT | TILE_DOWN;
-
 	function removeImpossible(x, y, tile) {
-		/*
-		// right corners
-		if(x === m-1 && (y === 0 || y === n-1))
-			tile |= TILE_LEFT | TILE_UP | TILE_DOWN;
-
-		// left corners
-		if(x === 0 && (y === 0 || y === n-1))
-			tile |= TILE_RIGHT | TILE_UP | TILE_DOWN;
-		*/
-
 		// remove impossible edge piece edges
 		if(y === 0) tile &= ~TILE_UP;
 		if(y === n-1) tile &= ~TILE_DOWN;
@@ -154,10 +141,6 @@ function makeRandomBoard(rnd, n, m) {
 		if((tile & TILE_LEFT) && !(include & TILE_LEFT)) go(x-1, y, TILE_RIGHT);
 		if((tile & TILE_DOWN) && !(include & TILE_DOWN)) go(x, y+1, TILE_UP);
 		if((tile & TILE_UP) && !(include & TILE_UP)) go(x, y-1, TILE_DOWN);
-
-		if(x===1&&y===0)
-			console.log("OUTLIER:", tile, include, !!(include & TILE_LEFT))
-
 	}
 
 	go(0, 0, 0);
@@ -185,8 +168,6 @@ function showBoard(board) {
 
 function solve(x, y) {
 	if(y >= board.length || x >= board[0].length) {
-		// console.log("is connected: ", isConnected(board))
-		// console.log(showBoard(board));
 		return isConnected(board);
 	}
 
@@ -207,11 +188,6 @@ function solve(x, y) {
 
 window.onload = function() {
 	const game = document.getElementById("game");
-	console.log("isConnected(board):", isConnected(board));
-	console.log("isConnected(solved):", isConnected(solved));
-
-
-	// solve(0, 0);
 
 	for(let y = 0; y < board.length; y++) {
 		const rowEl = document.createElement("div");
