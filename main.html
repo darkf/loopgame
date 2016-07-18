@@ -78,10 +78,38 @@ function isConnected(board) {
 	return true;
 }
 
+function showBoard(board) {
+	return board.map(row => row.map(tileChar).join('')).join('\n');
+}
+
+function solve(x, y) {
+	if(y >= board.length || x >= board[0].length) {
+		// console.log("is connected: ", isConnected(board))
+		// console.log(showBoard(board));
+		return isConnected(board);
+	}
+
+	for(let rotations = 0; rotations < 4; rotations++) {
+		// Try solving the rest of the board, see if that configuration works
+		if(x+1 === board[0].length) {
+			if(solve(0, y+1))
+				return true;
+		}
+		else if(solve(x+1, y))
+			return true;
+
+		board[y][x] = rotate(board[y][x]);
+	}
+
+	return false;
+}
+
 window.onload = function() {
 	const game = document.getElementById("game");
 	console.log("isConnected(board):", isConnected(board));
 	console.log("isConnected(solved):", isConnected(solved));
+
+	solve(0, 0);
 
 	for(let y = 0; y < board.length; y++) {
 		const rowEl = document.createElement("div");
