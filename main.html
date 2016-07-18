@@ -10,21 +10,29 @@
 <script>
 "use strict";
 
+const ARROWS = true;
+
 const TILE_UP = 1;
 const TILE_RIGHT = 2;
 const TILE_DOWN = 4;
 const TILE_LEFT = 8;
 
-const board = [[9,  12, 12, 6]
+/*const board = [[9,  12, 12, 6]
               ,[10, 13, 13, 5]
-              ,[3,  3,  9,  3]];
+              ,[3,  3,  9,  3]];*/
 
 const solved = [[6, 12, 6, 12]
                ,[5, 7,  13, 5]
                ,[3, 9,  3, 9]];
 
+const rng = (s) => () => { s = Math.sin(s) * 10000; return s - Math.floor(s); };
+function getRandomInt(rng, min, max) { // [min, max)
+  return Math.floor(rng() * (max - min)) + min;
+}
+
 function tileChar(tile) {
 	switch(tile) {
+		case 0: return ' ';
 		case TILE_UP | TILE_DOWN: return '┃';
 		case TILE_LEFT | TILE_RIGHT: return '━';
 		case TILE_DOWN | TILE_RIGHT: return '┏';
@@ -36,10 +44,10 @@ function tileChar(tile) {
 		case TILE_LEFT | TILE_UP | TILE_DOWN: return '┫';
 		case TILE_UP | TILE_LEFT | TILE_RIGHT: return '┻';
 		case TILE_UP | TILE_DOWN | TILE_LEFT | TILE_RIGHT: return '╋';
-		case TILE_UP: return '╹';
-		case TILE_RIGHT: return '╺';
-		case TILE_LEFT: return '╸';
-		case TILE_DOWN: return '╻';
+		case TILE_UP: return ARROWS && '↑' || '╹';
+		case TILE_RIGHT: return ARROWS && '→' || '╺';
+		case TILE_LEFT: return ARROWS && '←' || '╸';
+		case TILE_DOWN: return ARROWS && '↓' || '╻';
 		default: throw new Error("");
 	}
 }
@@ -78,6 +86,89 @@ function isConnected(board) {
 	return true;
 }
 
+function makeRandomBoard(n, m) {
+	// Create a random connected board, forming a connected graph
+	// We start by filling in all of the edge pieces, with the constraint
+	// that they may not be pointing outwards (towards the end of the board).
+	// Then we fill it inwards adding an edge to whatever adjacent tiles also
+	// have edges towards it.
+
+	const rnd = rng(42);
+
+	const boardSize = {x: m, y: n};
+	const board = new Array(n);
+	for(let i = 0; i < n; i++) {
+		board[i] = new Array(m);
+		board[i].fill(0);
+	}
+
+	function set(x, y, dir) {
+		return (board[y] !== undefined && board[y][x] !== undefined) && (board[y][x] & dir);
+	}
+
+	// add starting tile in top-left corner (optional)
+	// board[0][0] = TILE_RIGHT | TILE_DOWN;
+
+	function removeImpossible(x, y, tile) {
+		/*
+		// right corners
+		if(x === m-1 && (y === 0 || y === n-1))
+			tile |= TILE_LEFT | TILE_UP | TILE_DOWN;
+
+		// left corners
+		if(x === 0 && (y === 0 || y === n-1))
+			tile |= TILE_RIGHT | TILE_UP | TILE_DOWN;
+		*/
+
+		// remove impossible edge piece edges
+		if(y === 0) tile &= ~TILE_UP;
+		if(y === n-1) tile &= ~TILE_DOWN;
+		if(x === 0) tile &= ~TILE_LEFT;
+		if(x === m-1) tile &= ~TILE_RIGHT;
+
+		return tile;
+	}
+
+	const visited = new Set();
+
+	function go(x, y, include) {
+		if(y < 0 || y >= n) return;
+		if(x < 0 || x >= m) return;
+
+		if(visited.has(y*200+x)) {
+			board[y][x] |= include;
+			board[y][x] = removeImpossible(x, y, board[y][x]);
+			return;
+		}
+
+		let tile = 0;
+		while(tile === 0) {
+			tile = getRandomInt(rnd, 1, 16) | include;
+			tile = removeImpossible(x, y, tile);
+		}
+
+		board[y][x] = tile;
+		visited.add(y*200+x);
+
+		// if the edge connects to an existing piece with no connection for it, add one
+
+		if((tile & TILE_RIGHT) && !(include & TILE_RIGHT)) go(x+1, y, TILE_LEFT);
+		if((tile & TILE_LEFT) && !(include & TILE_LEFT)) go(x-1, y, TILE_RIGHT);
+		if((tile & TILE_DOWN) && !(include & TILE_DOWN)) go(x, y+1, TILE_UP);
+		if((tile & TILE_UP) && !(include & TILE_UP)) go(x, y-1, TILE_DOWN);
+
+		if(x===1&&y===0)
+			console.log("OUTLIER:", tile, include, !!(include & TILE_LEFT))
+
+	}
+
+	go(0, 0, 0);
+
+	return board;
+}
+
+const board = makeRandomBoard(4, 4);
+
 function showBoard(board) {
 	return board.map(row => row.map(tileChar).join('')).join('\n');
 }
@@ -109,7 +200,7 @@ window.onload = function() {
 	console.log("isConnected(board):", isConnected(board));
 	console.log("isConnected(solved):", isConnected(solved));
 
-	solve(0, 0);
+	// solve(0, 0);
 
 	for(let y = 0; y < board.length; y++) {
 		const rowEl = document.createElement("div");
