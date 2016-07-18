@@ -86,14 +86,12 @@ function isConnected(board) {
 	return true;
 }
 
-function makeRandomBoard(n, m) {
+function makeRandomBoard(rnd, n, m) {
 	// Create a random connected board, forming a connected graph
 	// We start by filling in all of the edge pieces, with the constraint
 	// that they may not be pointing outwards (towards the end of the board).
 	// Then we fill it inwards adding an edge to whatever adjacent tiles also
 	// have edges towards it.
-
-	const rnd = rng(42);
 
 	const boardSize = {x: m, y: n};
 	const board = new Array(n);
@@ -167,7 +165,19 @@ function makeRandomBoard(n, m) {
 	return board;
 }
 
-const board = makeRandomBoard(4, 4);
+function shuffleBoard(rnd, board) {
+	for(let y = 0; y < board.length; y++) {
+		for(let x = 0; x < board[y].length; x++) {
+			const times = getRandomInt(rnd, 0, 3+1);
+			for(let i = 0; i < times; i++)
+				board[y][x] = rotate(board[y][x]);
+		}
+	}
+}
+
+const rnd = rng(42);
+const board = makeRandomBoard(rnd, 4, 4);
+shuffleBoard(rnd, board);
 
 function showBoard(board) {
 	return board.map(row => row.map(tileChar).join('')).join('\n');
@@ -199,6 +209,7 @@ window.onload = function() {
 	const game = document.getElementById("game");
 	console.log("isConnected(board):", isConnected(board));
 	console.log("isConnected(solved):", isConnected(solved));
+
 
 	// solve(0, 0);
 
